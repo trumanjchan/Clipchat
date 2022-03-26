@@ -10,14 +10,21 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-    console.log('a user connected');
+    console.log('Connected: ' + socket.id);
+    const user = socket.id;
+    io.emit('announce-user', user);
 
-    socket.on('chat message', (msg) => {
-        io.emit('chat message', msg);
-        console.log('message: ' + msg);
+    const count = io.of("/").sockets.size;
+    io.emit('update-num-users', count);
+
+    socket.on('chat-message', msg => {
+        io.emit('chat-message', user + ': ' + msg);
+        console.log(user + ': ' + msg);
     });
     socket.on('disconnect', () => {
-        console.log('a user disconnected');
+        io.emit('user-left', user);
+        io.emit('update-num-users', count);
+        console.log('Disconnected: ' + user);
     });
 });
 
