@@ -41,14 +41,18 @@
             }
         });
 
+        socket.on('connect', function(data) {
+            do {
+              var nickname = prompt('Your Name?');
+            }
+            while (nickname == null || nickname == '');
+            socket.emit('storeClientInfo', { username: nickname });
+        });
         socket.on('announce-user', function(user) {
             var item = document.createElement('li');
             item.textContent = 'Welcome, ' + user + '!';
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
-        });
-        socket.on('update-num-users', function(count) {
-            num_users.innerText = 'Clipchat Users: ' + count;
         });
         socket.on('chat-message', function(msg) {
             var item = document.createElement('li');
@@ -62,6 +66,10 @@
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
         });
+        socket.on('update-num-users', function(count) {
+            num_users.innerText = 'Clipchat Users: ' + count;
+        });
+        
         socket.on('connect_error', err => {
             var item = document.createElement('li');
             item.textContent = '* The server is offline *';
