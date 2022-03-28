@@ -21,6 +21,9 @@ io.on('connection', (socket) => {
         io.emit('announce-user', data.username);
         console.log('Welcome, ' + data.username + '!');
 
+        var count = clients.length;
+        io.emit('update-num-users', count);
+
         socket.on('chat-message', msg => {
             io.emit('chat-message', data.username + ': ' + msg);
             console.log(data.username + ': ' + msg);
@@ -29,13 +32,11 @@ io.on('connection', (socket) => {
             clients = clients.filter(person => person.username != data.username);
             console.log(clients);
             io.emit('user-left', data.username);
+            count = clients.length;
             io.emit('update-num-users', count);
             console.log('Disconnected: ' + data.username);
         });
     });
-
-    const count = io.of("/").sockets.size;
-    io.emit('update-num-users', count);
 });
 
 server.listen(3000, () => {
