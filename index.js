@@ -25,6 +25,12 @@ io.on('connection', (socket) => {
         io.emit('update-num-users', count);
         io.emit('update-user-list', clients);
 
+        socket.on('user-typing', () => {
+            io.emit('user-typing', data.username + ' is typing...');
+        });
+        socket.on('user-stopped-typing', () => {
+            io.emit('user-typing', '');
+        });
         socket.on('chat-message', msg => {
             io.emit('chat-message', data.username + ': ' + msg);
             console.log(data.username + ': ' + msg);
