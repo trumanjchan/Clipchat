@@ -23,6 +23,7 @@ io.on('connection', (socket) => {
 
         var count = clients.length;
         io.emit('update-num-users', count);
+        io.emit('update-user-list', clients);
 
         socket.on('chat-message', msg => {
             io.emit('chat-message', data.username + ': ' + msg);
@@ -34,6 +35,7 @@ io.on('connection', (socket) => {
             io.emit('user-left', data.username);
             count = clients.length;
             io.emit('update-num-users', count);
+            io.emit('update-user-list', clients);
             console.log('Disconnected: ' + data.username);
         });
     });
