@@ -35,6 +35,12 @@ io.on('connection', (socket) => {
             io.emit('chat-message', data.username + ': ' + msg);
             console.log(data.username + ': ' + msg);
         });
+        socket.on('private-message', data => {
+            var result = clients.find(obj => {
+                return obj.username === data.theirname;
+            })
+            io.to(result.clientId).emit('chat-message', '+ ' + clientInfo.username + " whispered '" + data.pm + "'");
+        });
         socket.on('disconnect', () => {
             clients = clients.filter(person => person.username != data.username);
             console.log(clients);

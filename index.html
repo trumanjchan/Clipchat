@@ -19,6 +19,7 @@
         #num_users { font-size: 25px; text-decoration: underline; position: sticky; top: 0; background-color: rgba(245, 245, 245, 0.85); }
         .flexcontainer { height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
         #users { list-style-type: none; margin: 0; padding: 0; }
+        #users > li:hover { cursor: pointer; background-color: rgb(129, 221, 129); }
         #typingstatus { position: sticky; bottom: 0; background-color: rgba(245, 245, 245, 0.85); }
 
         .main { display: flex; flex-direction: column; justify-content: space-between; border-left: 1px solid black; }
@@ -81,7 +82,7 @@
 
         loginform.addEventListener('submit', function(e) {
             e.preventDefault();
-            if (logininput.value && logininput.value.length < 11 && logininput.value.trim().length != 0 ) {
+            if (logininput.value && logininput.value.length < 11 && logininput.value.trim().length != 0) {
                 var nickname = logininput.value;
                 socket.emit('storeClientInfo', { username: nickname });
                 document.getElementById('login').style.display = 'none';
@@ -100,6 +101,20 @@
             e.preventDefault();
             if (input.value) {
                 socket.emit('chat-message', input.value);
+                input.value = '';
+                socket.emit('user-stopped-typing');
+            }
+        });
+        document.getElementById('users').addEventListener('click', function(e) {
+            var theirname = e.target.innerText
+            if (input.value) {
+                var pm = input.value;
+                socket.emit('private-message', { theirname, pm });
+                var item = document.createElement('li');
+                item.textContent = "- whispered '" + input.value + "' to " + theirname;
+                item.style.fontStyle = 'italic';
+                messages.appendChild(item);
+                window.scrollTo(0, document.body.scrollHeight);
                 input.value = '';
                 socket.emit('user-stopped-typing');
             }
