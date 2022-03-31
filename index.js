@@ -13,43 +13,49 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
     socket.on('storeClientInfo', function (data) {
-        var clientInfo = new Object();
-        clientInfo.clientId = socket.id;
-        clientInfo.username = data.username;
-        clients.push(clientInfo);
-        console.log(clients);
-        io.emit('announce-user', data.username);
-        console.log('Welcome, ' + data.username + '!');
-
-        var count = clients.length;
-        io.emit('update-num-users', count);
-        io.emit('update-user-list', clients);
-
-        socket.on('user-typing', () => {
-            io.emit('user-typing', data.username + ' is typing...');
-        });
-        socket.on('user-stopped-typing', () => {
-            io.emit('user-typing', '');
-        });
-        socket.on('chat-message', msg => {
-            io.emit('chat-message', data.username + ': ' + msg);
-            console.log(data.username + ': ' + msg);
-        });
-        socket.on('private-message', data => {
-            var result = clients.find(obj => {
-                return obj.username === data.theirname;
-            })
-            io.to(result.clientId).emit('chat-message', '+ ' + clientInfo.username + " whispered '" + data.pm + "'");
-        });
-        socket.on('disconnect', () => {
-            clients = clients.filter(person => person.username != data.username);
+        var nickavailability = clients.find(obj => {
+            return obj.username === data.username.trim();
+        })
+        if (nickavailability == undefined) {
+            io.emit('new-nickname');
+            var clientInfo = new Object();
+            clientInfo.clientId = socket.id;
+            clientInfo.username = data.username;
+            clients.push(clientInfo);
             console.log(clients);
-            io.emit('user-left', data.username);
-            count = clients.length;
+            io.emit('announce-user', data.username);
+            console.log('Welcome, ' + data.username + '!');
+
+            var count = clients.length;
             io.emit('update-num-users', count);
             io.emit('update-user-list', clients);
-            console.log('Disconnected: ' + data.username);
-        });
+
+            socket.on('user-typing', () => {
+                io.emit('user-typing', data.username + ' is typing...');
+            });
+            socket.on('user-stopped-typing', () => {
+                io.emit('user-typing', '');
+            });
+            socket.on('chat-message', msg => {
+                io.emit('chat-message', data.username + ': ' + msg);
+                console.log(data.username + ': ' + msg);
+            });
+            socket.on('private-message', data => {
+                var result = clients.find(obj => {
+                    return obj.username === data.theirname;
+                })
+                io.to(result.clientId).emit('chat-message', '+ ' + clientInfo.username + " whispered '" + data.pm + "'");
+            });
+            socket.on('disconnect', () => {
+                clients = clients.filter(person => person.username != data.username);
+                console.log(clients);
+                io.emit('user-left', data.username);
+                count = clients.length;
+                io.emit('update-num-users', count);
+                io.emit('update-user-list', clients);
+                console.log('Disconnected: ' + data.username);
+            });
+        }
     });
 });
 
