@@ -5,7 +5,16 @@
     <style>
         body { height: calc(100vh); margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: grid; grid-template-columns: 20% 80%; overflow-wrap: anywhere; }
 
-        .infocontainer { width: 100%; position: sticky; top: 0; text-align: center; background-color: rgba(0,0,0, 0.2); }
+        #login { position: absolute; z-index: 1; height: calc(100vh); width: calc(100vw); background-color: rgba(0, 0, 0, 0.5); }
+        #loginform { display: flex; flex-direction: column; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; right: 0; bottom: 0; margin: auto; height: fit-content; width: fit-content; border-radius: 50px; border: 1px solid black; padding: 2% 5% 4% 5%; font-size: 20px; background-color: #d9edc7; }
+        .logintitle { font-size: 30px; margin-bottom: 10%; }
+        .grid { width: 100%; display: grid; grid-template-columns: 50% 50%; grid-template-areas: "displayname inputfield" ". submitbutton"; }
+        .displayname { grid-area: displayname; text-align: center; }
+        .inputfield { grid-area: inputfield; font-size: 20px; padding: 0% 2%; }
+        .enterbutton { grid-area: submitbutton; font-size: 20px; }
+        .logininfo { margin-bottom: 0; }
+
+        .infocontainer { width: 100%; position: sticky; top: 0; text-align: center; background-color: rgb(172, 228, 172); }
         .info { height: calc(100vh); position: sticky; top: 0; overflow: auto; font-size: 20px; }
         #num_users { font-size: 25px; text-decoration: underline; position: sticky; top: 0; background-color: rgba(245, 245, 245, 0.85); }
         .flexcontainer { height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
@@ -15,7 +24,7 @@
         .main { display: flex; flex-direction: column; justify-content: space-between; border-left: 1px solid black; }
         #messages { width: 100%; list-style-type: none; margin: 0; padding: 0; font-size: 20px; }
         #messages > li { padding: 0.5rem 1rem; }
-        #messages > li:nth-child(odd) { background: #efefef; }
+        #messages > li:hover { background-color: rgb(245, 245, 245); }
         #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; display: flex; flex-wrap: wrap; position: sticky; bottom: 0; }
         #input { border: none; flex-grow: 1; border-radius: 10px; margin: 0.25rem; padding: 0% 1%; font-size: 35px; }
         #input:focus { outline: none; }
@@ -24,6 +33,21 @@
   </head>
 
   <body>
+    <div id="login">
+      <form id="loginform" action="">
+        <div class="logintitle">Socket</div>
+        <div class="grid">
+          <div class="displayname">Display Name:</div>
+          <input id="logininput" class="inputfield" autocomplete="off" />
+          <button id="enter" class="enterbutton">Enter</button>
+        </div>
+        <ul class="logininfo">
+          <li>Must be 10 characters or less.</li>
+          <li>Cannot be <i>nothing</i> or just whitespace.</li>
+        </ul>
+      </form>
+    </div>
+
     <div class="infocontainer">
       <div class="info">
         <div id="num_users"></div>
@@ -46,12 +70,24 @@
     <script>
         var socket = io();
 
+        var loginform = document.getElementById('loginform');
+        var logininput = document.getElementById('logininput');
+
         var num_users = document.getElementById('num_users');
         var messages = document.getElementById('messages');
         var form = document.getElementById('form');
         var input = document.getElementById('input');
         var typingstatus = document.getElementById('typingstatus');
 
+        loginform.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (logininput.value && logininput.value.length < 11 && logininput.value.trim().length != 0 ) {
+                var nickname = logininput.value;
+                socket.emit('storeClientInfo', { username: nickname });
+                document.getElementById('login').style.display = 'none';
+                input.focus();
+            }
+        });
         form.addEventListener('input', function() {
             if (input.value.length > 0) {
                 socket.emit('user-typing');
@@ -70,15 +106,12 @@
         });
 
         socket.on('connect', function(data) {
-            do {
-              var nickname = prompt('Your Name? Must be 10 characters or less.');
-            }
-            while (nickname == null || nickname == '' || nickname.length > 10);
-            socket.emit('storeClientInfo', { username: nickname });
+            logininput.focus();
         });
         socket.on('announce-user', function(user) {
             var item = document.createElement('li');
             item.textContent = 'Welcome, ' + user + '!';
+            item.style.color = 'green';
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
         });
@@ -94,6 +127,7 @@
         socket.on('user-left', function(user) {
             var item = document.createElement('li');
             item.textContent = user + ' has left.';
+            item.style.color = 'red';
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
         });
@@ -101,13 +135,13 @@
             num_users.innerText = 'Online Users: ' + count;
         });
         socket.on('update-user-list', function(clients) {
-          var myNode = document.getElementById('users');
-          myNode.innerHTML = '';
-          for (i = 0; i < clients.length; i++) {
-            var item = document.createElement('li');
-            item.textContent = clients[i].username;
-            users.appendChild(item);
-          }
+            var myNode = document.getElementById('users');
+            myNode.innerHTML = '';
+            for (i = 0; i < clients.length; i++) {
+              var item = document.createElement('li');
+              item.textContent = clients[i].username;
+              users.appendChild(item);
+            }
         });
 
         socket.on('connect_error', err => {
