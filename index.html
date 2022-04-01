@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Socket Chat</title>
+    <title>Sock Chats</title>
     <style>
         body { height: calc(100vh); margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: grid; grid-template-columns: 20% 80%; overflow-wrap: anywhere; }
 
@@ -19,7 +19,7 @@
         #num_users { font-size: 25px; text-decoration: underline; position: sticky; top: 0; background-color: rgba(245, 245, 245, 0.85); }
         .flexcontainer { height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
         #users { list-style-type: none; margin: 0; padding: 0; }
-        #users > li:hover { cursor: pointer; background-color: rgb(129, 221, 129); }
+        #users > li:hover { cursor: pointer; background-color: rgb(129, 221, 129) !important; }
         #typingstatus { position: sticky; bottom: 0; background-color: rgba(245, 245, 245, 0.85); }
 
         .main { display: flex; flex-direction: column; justify-content: space-between; border-left: 1px solid black; }
@@ -72,6 +72,7 @@
     <script>
         var socket = io();
 
+        var nickname;
         var loginform = document.getElementById('loginform');
         var logininput = document.getElementById('logininput');
 
@@ -80,16 +81,20 @@
         var form = document.getElementById('form');
         var input = document.getElementById('input');
         var typingstatus = document.getElementById('typingstatus');
+        var privatemessaging = false;
+        console.log('privatemessaging: ' + privatemessaging);
+        var theirname;
+        console.log('theirname: ' + theirname);
 
         loginform.addEventListener('submit', function(e) {
             e.preventDefault();
             if (logininput.value && logininput.value.length < 11 && logininput.value.trim().length != 0) {
-                var nickname = logininput.value;
+                nickname = logininput.value;
                 socket.emit('storeClientInfo', { username: nickname });
 
                 socket.on('new-nickname', function() {
-                  document.getElementById('login').style.display = 'none';
-                  input.focus();
+                    document.getElementById('login').style.display = 'none';
+                    input.focus();
                 });
             }
         });
@@ -103,25 +108,51 @@
         });
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-            if (input.value) {
+            if (input.value && !privatemessaging) {
                 socket.emit('chat-message', input.value);
                 input.value = '';
                 socket.emit('user-stopped-typing');
             }
-        });
-        document.getElementById('users').addEventListener('click', function(e) {
-            var theirname = e.target.innerText
-            if (input.value) {
+            else if (input.value && privatemessaging) {
+                console.log('theirname after submit: ' + theirname);
+                console.log('privatemessaging after submit: ' + privatemessaging);
                 var pm = input.value;
                 socket.emit('private-message', { theirname, pm });
                 var item = document.createElement('li');
-                item.textContent = "- whispered '" + input.value + "' to " + theirname;
+                item.textContent = "- whispered '" + input.value + "'";
                 item.style.fontStyle = 'italic';
                 messages.appendChild(item);
                 window.scrollTo(0, document.body.scrollHeight);
                 input.value = '';
                 input.focus();
                 socket.emit('user-stopped-typing');
+            }
+        });
+        document.getElementById('users').addEventListener('click', function(e) {
+            if (theirname == undefined && !privatemessaging) {
+                input.focus();
+                theirname = e.target.innerText;
+                privatemessaging = true;
+                e.target.style.backgroundColor = 'rgb(129, 221, 129)';
+                console.log('theirname after click: ' + theirname);
+                console.log('privatemessaging after click: ' + privatemessaging);
+                var item = document.createElement('li');
+                item.textContent = 'You are now whispering to ' + theirname + '.';
+                item.style.fontWeight = 'bold';
+                messages.appendChild(item);
+                window.scrollTo(0, document.body.scrollHeight);
+            }
+            else if (e.target.innerText == theirname) {
+                input.focus();
+                theirname = undefined;
+                privatemessaging = false;
+                e.target.style.backgroundColor = 'transparent';
+                console.log('now talking to everyone again');
+                var item = document.createElement('li');
+                item.textContent = 'You are now speaking to everyone.';
+                item.style.fontWeight = 'bold';
+                messages.appendChild(item);
+                window.scrollTo(0, document.body.scrollHeight);
             }
         });
 
@@ -150,6 +181,18 @@
             item.style.color = 'red';
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
+            socket.emit('user-stopped-typing');
+
+            if (user == theirname) {
+                theirname = undefined;
+                privatemessaging = false;
+                console.log('now talking to everyone again');
+                var item = document.createElement('li');
+                item.textContent = 'Recipient has left. You are now speaking to everyone.';
+                item.style.fontWeight = 'bold';
+                messages.appendChild(item);
+                window.scrollTo(0, document.body.scrollHeight);
+            }
         });
         socket.on('update-num-users', function(count) {
             num_users.innerText = 'Online Users: ' + count;
@@ -158,9 +201,17 @@
             var myNode = document.getElementById('users');
             myNode.innerHTML = '';
             for (i = 0; i < clients.length; i++) {
-              var item = document.createElement('li');
-              item.textContent = clients[i].username;
-              users.appendChild(item);
+                var item = document.createElement('li');
+                item.textContent = clients[i].username;
+              
+                if (nickname == clients[i].username) {
+                  item.style.color = 'white';
+                  item.style.letterSpacing = '1.2px';
+                }
+                if (clients[i].username == theirname && privatemessaging) {
+                    item.style.backgroundColor = 'rgb(129, 221, 129)';
+                }
+                users.appendChild(item);
             }
         });
 

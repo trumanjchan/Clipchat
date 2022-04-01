@@ -12,6 +12,10 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
+    var count = clients.length;
+    io.emit('update-num-users', count);
+    io.emit('update-user-list', clients);
+
     socket.on('storeClientInfo', function (data) {
         var nickavailability = clients.find(obj => {
             return obj.username === data.username.trim();
@@ -26,7 +30,7 @@ io.on('connection', (socket) => {
             io.emit('announce-user', data.username);
             console.log('Welcome, ' + data.username + '!');
 
-            var count = clients.length;
+            count = clients.length;
             io.emit('update-num-users', count);
             io.emit('update-user-list', clients);
 
