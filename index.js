@@ -7,6 +7,8 @@ const io = new Server(server);
 
 var clients = [];
 
+app.use('/images', express.static(__dirname + '/images'));
+
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
