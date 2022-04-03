@@ -7,7 +7,7 @@ const io = new Server(server);
 
 var clients = [];
 
-app.use('/images', express.static(__dirname + '/images'));
+app.use('/public', express.static(__dirname + '/public'));
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
@@ -43,15 +43,21 @@ io.on('connection', (socket) => {
                 io.emit('user-typing', '');
             });
             socket.on('chat-message', msg => {
-                io.emit('chat-message', data.username + ': ' + msg);
+                io.emit('chat-message', '<' + data.username + '> ' + msg);
                 console.log(data.username + ': ' + msg);
             });
             socket.on('private-message', data => {
-                var result = clients.find(obj => {
-                    return obj.username === data.theirname;
-                })
-                io.to(result.clientId).emit('chat-message', '+ ' + clientInfo.username + " whispered '" + data.pm + "'");
+                for (var i = 0; i < data.groupchat.length; i++) {
+                    var result = clients.find(obj => {
+                        return obj.username === data.groupchat[i];
+                    })
+
+                    data.groupchat[i] = 'me';
+                    io.to(result.clientId).emit('chat-message', '[' + clientInfo.username + ' -> ' + data.groupchat.join(', ') + '] ' + data.pm);
+                    data.groupchat[i] = result.username;
+                }
             });
+
             socket.on('disconnect', () => {
                 clients = clients.filter(person => person.username != data.username);
                 console.log(clients);

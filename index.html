@@ -3,7 +3,8 @@
   <head>
     <title>Sock Chats</title>
     <style>
-        body { height: calc(100vh); margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: grid; grid-template-columns: 20% 80%; overflow-wrap: anywhere; }
+        @font-face {font-family: 'Minecraft'; src: url('/public/minecraftia/Minecraftia-Regular.ttf'); }
+        body { height: calc(100vh); margin: 0; display: grid; grid-template-columns: 20% 80%; overflow-wrap: anywhere; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         img { position: fixed; top: 0; right: 0; width: 50px; margin: 0.55% 0.55% 0% 0%; }
 
         #login { position: fixed; z-index: 1; height: calc(100vh); width: calc(100vw); background-color: rgba(0, 0, 0, 0.5); }
@@ -24,11 +25,11 @@
         #typingstatus { position: sticky; bottom: 0; background-color: rgba(245, 245, 245, 0.85); }
 
         .main { display: flex; flex-direction: column; justify-content: space-between; border-left: 1px solid black; }
-        #messages { width: 100%; list-style-type: none; margin: 0; padding: 0; font-size: 20px; }
-        #messages > li { padding: 0.5rem 1rem; }
+        #messages { width: 100%; list-style-type: none; margin: 0; padding: 0; font-size: 20px; font-family: 'Minecraft', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        #messages > li { padding: 0.5% 1.5%; }
         #messages > li:hover { background-color: rgb(245, 245, 245); }
         #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; display: flex; flex-wrap: wrap; position: sticky; bottom: 0; }
-        #input { border: none; flex-grow: 1; border-radius: 10px; margin: 0.25rem; padding: 0% 1%; font-size: 35px; }
+        #input { border: none; flex-grow: 1; border-radius: 10px; margin: 0.25rem; padding: 0% 1%; font-size: 30px; }
         #input:focus { outline: none; }
         #form > button { flex-grow: 1; background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 10px; outline: none; color: #fff; }
     </style>
@@ -63,7 +64,7 @@
 
     <div class="main">
       <ul id="messages">
-        <a href="https://github.com/trumanjchan/Socketchat" target="_blank"><img src="/images/github.webp" alt="Github" /></a>
+        <a href="https://github.com/trumanjchan/Socketchat" target="_blank"><img src="/public/github.webp" alt="Github" /></a>
       </ul>
       <form id="form" action="">
         <input id="input" autocomplete="off" />
@@ -84,10 +85,8 @@
         var form = document.getElementById('form');
         var input = document.getElementById('input');
         var typingstatus = document.getElementById('typingstatus');
+        var groupchat = [];
         var privatemessaging = false;
-        console.log('privatemessaging: ' + privatemessaging);
-        var theirname;
-        console.log('theirname: ' + theirname);
 
         loginform.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -117,13 +116,10 @@
                 socket.emit('user-stopped-typing');
             }
             else if (input.value && privatemessaging) {
-                console.log('theirname after submit: ' + theirname);
-                console.log('privatemessaging after submit: ' + privatemessaging);
                 var pm = input.value;
-                socket.emit('private-message', { theirname, pm });
+                socket.emit('private-message', { groupchat, pm });
                 var item = document.createElement('li');
-                item.textContent = "- whispered '" + input.value + "'";
-                item.style.fontStyle = 'italic';
+                item.textContent = '[me -> ' + groupchat.join(', ') + '] ' + input.value;
                 messages.appendChild(item);
                 window.scrollTo(0, document.body.scrollHeight);
                 input.value = '';
@@ -132,30 +128,40 @@
             }
         });
         document.getElementById('users').addEventListener('click', function(e) {
-            if (theirname == undefined && !privatemessaging) {
+            if (!groupchat.includes(e.target.innerText)) {
+                groupchat.push(e.target.innerText);
+
                 input.focus();
-                theirname = e.target.innerText;
                 privatemessaging = true;
                 e.target.style.backgroundColor = 'rgb(129, 221, 129)';
-                console.log('theirname after click: ' + theirname);
-                console.log('privatemessaging after click: ' + privatemessaging);
                 var item = document.createElement('li');
-                item.textContent = 'You are now whispering to ' + theirname + '.';
+                item.textContent = 'You are now whispering to ' + groupchat.join(', ') + '.';
                 item.style.fontWeight = 'bold';
                 messages.appendChild(item);
                 window.scrollTo(0, document.body.scrollHeight);
             }
-            else if (e.target.innerText == theirname) {
+            else if (groupchat.includes(e.target.innerText)) {
+                var result = groupchat.filter(word => word != e.target.innerText);
+                groupchat = result;
+
                 input.focus();
-                theirname = undefined;
-                privatemessaging = false;
-                e.target.style.backgroundColor = 'transparent';
-                console.log('now talking to everyone again');
-                var item = document.createElement('li');
-                item.textContent = 'You are now speaking to everyone.';
-                item.style.fontWeight = 'bold';
-                messages.appendChild(item);
-                window.scrollTo(0, document.body.scrollHeight);
+                if (privatemessaging === true && groupchat.length == 0) {
+                    privatemessaging = false;
+                    e.target.style.backgroundColor = 'transparent';
+                    var item = document.createElement('li');
+                    item.textContent = 'You are now speaking to everyone.';
+                    item.style.fontWeight = 'bold';
+                    messages.appendChild(item);
+                    window.scrollTo(0, document.body.scrollHeight);
+                }
+                else {
+                    e.target.style.backgroundColor = 'transparent';
+                    var item = document.createElement('li');
+                    item.textContent = 'No longer whispering to ' + e.target.innerText + '. Still whispering: ' + groupchat.join(', ');
+                    item.style.fontWeight = 'bold';
+                    messages.appendChild(item);
+                    window.scrollTo(0, document.body.scrollHeight);
+                }
             }
         });
 
@@ -186,16 +192,23 @@
             window.scrollTo(0, document.body.scrollHeight);
             socket.emit('user-stopped-typing');
 
-            if (user == theirname) {
-                theirname = undefined;
-                privatemessaging = false;
-                console.log('now talking to everyone again');
+            if (groupchat.includes(user) && groupchat.length > 1) {
                 var item = document.createElement('li');
-                item.textContent = 'Recipient has left. You are now speaking to everyone.';
+                item.textContent = 'One of your recipients left.';
                 item.style.fontWeight = 'bold';
                 messages.appendChild(item);
                 window.scrollTo(0, document.body.scrollHeight);
             }
+            else if (groupchat.includes(user) && groupchat.length == 1) {
+                privatemessaging = false;
+                var item = document.createElement('li');
+                item.textContent = 'Your recipient left. You are now talking to everyone.';
+                item.style.fontWeight = 'bold';
+                messages.appendChild(item);
+                window.scrollTo(0, document.body.scrollHeight);
+            }
+            var result = groupchat.filter(word => word != user);
+            groupchat = result;
         });
         socket.on('update-num-users', function(count) {
             num_users.innerText = 'Online Users: ' + count;
@@ -208,10 +221,10 @@
                 item.textContent = clients[i].username;
               
                 if (nickname == clients[i].username) {
-                  item.style.color = 'white';
-                  item.style.letterSpacing = '1.2px';
+                    item.style.color = 'white';
+                    item.style.letterSpacing = '1.2px';
                 }
-                if (clients[i].username == theirname && privatemessaging) {
+                if (groupchat.includes(clients[i].username) && privatemessaging) {
                     item.style.backgroundColor = 'rgb(129, 221, 129)';
                 }
                 users.appendChild(item);
