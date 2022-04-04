@@ -46,14 +46,14 @@ io.on('connection', (socket) => {
                 io.emit('chat-message', '<' + data.username + '> ' + msg);
                 console.log(data.username + ': ' + msg);
             });
-            socket.on('private-message', data => {
+            socket.on('privatemessaging', data => {
                 for (var i = 0; i < data.groupchat.length; i++) {
                     var result = clients.find(obj => {
                         return obj.username === data.groupchat[i];
                     })
 
                     data.groupchat[i] = 'me';
-                    io.to(result.clientId).emit('chat-message', '[' + clientInfo.username + ' -> ' + data.groupchat.join(', ') + '] ' + data.pm);
+                    io.to(result.clientId).emit('private-message', '[' + clientInfo.username + ' -> ' + data.groupchat.join(', ') + '] ' + data.pm);
                     data.groupchat[i] = result.username;
                 }
             });

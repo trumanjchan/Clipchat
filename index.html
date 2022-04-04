@@ -16,13 +16,12 @@
         .enterbutton { grid-area: submitbutton; font-size: 20px; }
         .logininfo { margin-bottom: 0; }
 
-        .infocontainer { width: 100%; position: sticky; top: 0; text-align: center; background-color: rgb(172, 228, 172); }
-        .info { height: calc(100vh); position: sticky; top: 0; overflow: auto; font-size: 20px; }
-        #num_users { font-size: 25px; text-decoration: underline; position: sticky; top: 0; background-color: rgba(245, 245, 245, 0.85); }
-        .flexcontainer { height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
-        #users { list-style-type: none; margin: 0; padding: 0; }
+        .infocontainer { width: 100%; text-align: center; background-color: rgb(172, 228, 172); font-size: 20px; }
+        .stickycontainer { height: calc(100vh); display: flex; flex-direction: column; position: sticky; top: 0; }
+        #num_users { font-size: 25px; text-decoration: underline; background-color: rgba(245, 245, 245, 0.85); }
+        #users { list-style-type: none; margin: 0; margin-block-end: auto; padding: 0; overflow: auto; }
         #users > li:hover { cursor: pointer; background-color: rgb(129, 221, 129) !important; }
-        #typingstatus { position: sticky; bottom: 0; background-color: rgba(245, 245, 245, 0.85); }
+        #typingstatus { width: 100%; position: absolute; bottom: 0; background-color: rgba(245, 245, 245, 0.85); }
 
         .main { display: flex; flex-direction: column; justify-content: space-between; border-left: 1px solid black; }
         #messages { width: 100%; list-style-type: none; margin: 0; padding: 0; font-size: 20px; font-family: 'Minecraft', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
@@ -53,13 +52,11 @@
     </div>
 
     <div class="infocontainer">
-      <div class="info">
-        <div id="num_users"></div>
-        <div class="flexcontainer">
-          <ul id="users"></ul>
-          <div id="typingstatus"></div>
+        <div class="stickycontainer">
+            <div id="num_users"></div>
+            <ul id="users"></ul>
+            <div id="typingstatus"></div>
         </div>
-      </div>
     </div>
 
     <div class="main">
@@ -117,7 +114,7 @@
             }
             else if (input.value && privatemessaging) {
                 var pm = input.value;
-                socket.emit('private-message', { groupchat, pm });
+                socket.emit('privatemessaging', { groupchat, pm });
                 var item = document.createElement('li');
                 item.textContent = '[me -> ' + groupchat.join(', ') + '] ' + input.value;
                 messages.appendChild(item);
@@ -135,7 +132,7 @@
                 privatemessaging = true;
                 e.target.style.backgroundColor = 'rgb(129, 221, 129)';
                 var item = document.createElement('li');
-                item.textContent = 'You are now whispering to ' + groupchat.join(', ') + '.';
+                item.textContent = 'Whispering: ' + groupchat.join(', ') + '.';
                 item.style.fontWeight = 'bold';
                 messages.appendChild(item);
                 window.scrollTo(0, document.body.scrollHeight);
@@ -157,7 +154,7 @@
                 else {
                     e.target.style.backgroundColor = 'transparent';
                     var item = document.createElement('li');
-                    item.textContent = 'No longer whispering to ' + e.target.innerText + '. Still whispering: ' + groupchat.join(', ');
+                    item.textContent = 'Removed recipient: ' + e.target.innerText + '. Whispering: ' + groupchat.join(', ') + '.';
                     item.style.fontWeight = 'bold';
                     messages.appendChild(item);
                     window.scrollTo(0, document.body.scrollHeight);
@@ -169,6 +166,8 @@
             logininput.focus();
         });
         socket.on('announce-user', function(user) {
+            var audio = new Audio('/public/242501__gabrielaraujo__powerup-success.wav');
+            audio.play();
             var item = document.createElement('li');
             item.textContent = 'Welcome, ' + user + '!';
             item.style.color = 'green';
@@ -184,7 +183,17 @@
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
         });
+        socket.on('private-message', function(msg) {
+            var audio = new Audio('/public/350862__cabled-mess__blip-c-04.wav');
+            audio.play();
+            var item = document.createElement('li');
+            item.textContent = msg;
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
         socket.on('user-left', function(user) {
+            var audio = new Audio('/public/133283__leszek-szary__game-over.wav');
+            audio.play();
             var item = document.createElement('li');
             item.textContent = user + ' has left.';
             item.style.color = 'red';
@@ -194,7 +203,7 @@
 
             if (groupchat.includes(user) && groupchat.length > 1) {
                 var item = document.createElement('li');
-                item.textContent = 'One of your recipients left.';
+                item.textContent = 'One of your recipients left: ' + user + '.';
                 item.style.fontWeight = 'bold';
                 messages.appendChild(item);
                 window.scrollTo(0, document.body.scrollHeight);
