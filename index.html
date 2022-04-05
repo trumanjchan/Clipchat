@@ -2,10 +2,10 @@
 <html>
   <head>
     <title>Sock Chats</title>
+    <link rel="favicon" type="image/x-icon" href="/public/favicon.ico" />
     <style>
         @font-face {font-family: 'Minecraft'; src: url('/public/minecraftia/Minecraftia-Regular.ttf'); }
         body { height: calc(100vh); margin: 0; display: grid; grid-template-columns: 20% 80%; overflow-wrap: anywhere; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        img { position: fixed; top: 0; right: 0; width: 50px; margin: 0.55% 0.55% 0% 0%; }
 
         #login { position: fixed; z-index: 1; height: calc(100vh); width: calc(100vw); background-color: rgba(0, 0, 0, 0.5); }
         #loginform { display: flex; flex-direction: column; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; right: 0; bottom: 0; margin: auto; height: fit-content; width: fit-content; border-radius: 50px; border: 1px solid black; padding: 2% 5% 4% 5%; font-size: 20px; background-color: #d9edc7; }
@@ -16,6 +16,15 @@
         .enterbutton { grid-area: submitbutton; font-size: 20px; }
         .logininfo { margin-bottom: 0; }
 
+        #soundssettings { display: none; position: fixed; z-index: 1; height: calc(100vh); width: calc(100vw); background-color: rgba(0, 0, 0, 0.5); }
+        #soundscontainer { display: flex; flex-direction: column; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; right: 0; bottom: 0; margin: auto; height: fit-content; width: fit-content; border-radius: 50px; border: 1px solid black; padding: 2% 5% 4% 5%; font-size: 20px; background-color: #d9edc7; }
+        #soundscontainer > button { font-size: 20px; }
+        .soundstitle { font-size: 30px; margin-bottom: 10%; }
+        .buttonsgrid { display: grid; grid-template-rows: auto auto auto auto; row-gap: 5px; }
+        .buttonsgrid > button { font-size: 25px; background-color: #cdffa0; }
+        #muteall { background-color: red; }
+        #savesounds { margin-top: 5%; }
+
         .infocontainer { width: 100%; text-align: center; background-color: rgb(172, 228, 172); font-size: 20px; }
         .stickycontainer { height: calc(100vh); display: flex; flex-direction: column; position: sticky; top: 0; }
         #num_users { font-size: 25px; text-decoration: underline; background-color: rgba(245, 245, 245, 0.85); }
@@ -24,6 +33,8 @@
         #typingstatus { width: 100%; position: absolute; bottom: 0; background-color: rgba(245, 245, 245, 0.85); }
 
         .main { display: flex; flex-direction: column; justify-content: space-between; border-left: 1px solid black; }
+        .githubicon { position: fixed; top: 0; right: 0; width: 50px; margin: 0.55% 0.55% 0% 0%; }
+        .soundicon { position: fixed; top: 56.5px; right: 0; width: 50px; margin: 0.55% 0.55% 0% 0%; cursor: pointer; }
         #messages { width: 100%; list-style-type: none; margin: 0; padding: 0; font-size: 20px; font-family: 'Minecraft', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         #messages > li { padding: 0.5% 1.5%; }
         #messages > li:hover { background-color: rgb(245, 245, 245); }
@@ -51,6 +62,19 @@
       </form>
     </div>
 
+    <div id="soundssettings">
+        <div id="soundscontainer">
+            <div class="soundstitle">Toggle Sounds</div>
+            <div class="buttonsgrid">
+                <button id="welcome">User Join</button>
+                <button id="disconnect">User Disconnect</button>
+                <button id="whisper">Received Whisper</button>
+                <button id="muteall">Mute All</button>
+            </div>
+            <button id="savesounds">Back</button>
+        </div>
+    </div>
+
     <div class="infocontainer">
         <div class="stickycontainer">
             <div id="num_users"></div>
@@ -61,10 +85,11 @@
 
     <div class="main">
       <ul id="messages">
-        <a href="https://github.com/trumanjchan/Socketchat" target="_blank"><img src="/public/github.webp" alt="Github" /></a>
+            <a href="https://github.com/trumanjchan/Socketchat" target="_blank"><img class="githubicon" src="/public/github.webp" alt="Github icon by riajulislam on flaticon.com" /></a>
+            <img id="soundicon" class="soundicon" src="/public/sound.webp" alt="Sound icon by juicy_fish on flaticon.com" />
       </ul>
       <form id="form" action="">
-        <input id="input" autocomplete="off" />
+        <input id="input" autocomplete="off" maxlength="120" />
         <button>Send</button>
       </form>
     </div>
@@ -76,6 +101,11 @@
         var nickname;
         var loginform = document.getElementById('loginform');
         var logininput = document.getElementById('logininput');
+
+        var muteallsounds = false;
+        var welcomesound = true;
+        var disconnectsound = true;
+        var whispersound = true;
 
         var num_users = document.getElementById('num_users');
         var messages = document.getElementById('messages');
@@ -161,13 +191,81 @@
                 }
             }
         });
+        document.getElementById('soundicon').addEventListener('click', function() {
+            document.getElementById('soundssettings').style.display = 'block';
+        });
+        document.getElementById('muteall').addEventListener('click', function() {
+            muteallsounds = !muteallsounds;
+            if (muteallsounds) {
+                document.getElementById('muteall').style.backgroundColor = '#cdffa0';
+                welcomesound = false;
+                disconnectsound = false;
+                whispersound = false;
+                document.getElementById('welcome').style.backgroundColor = 'red';
+                document.getElementById('disconnect').style.backgroundColor = 'red';
+                document.getElementById('whisper').style.backgroundColor = 'red';
+            }
+            else if (!muteallsounds) {
+                document.getElementById('muteall').style.backgroundColor = 'red';
+                welcomesound = true;
+                disconnectsound = true;
+                whispersound = true;
+                document.getElementById('welcome').style.backgroundColor = '#cdffa0';
+                document.getElementById('disconnect').style.backgroundColor = '#cdffa0';
+                document.getElementById('whisper').style.backgroundColor = '#cdffa0';
+            }
+        });
+        document.getElementById('welcome').addEventListener('click', function() {
+            welcomesound = !welcomesound;
+            if (welcomesound) {
+                document.getElementById('welcome').style.backgroundColor = '#cdffa0';
+            }
+            else if (!welcomesound) {
+                document.getElementById('welcome').style.backgroundColor = 'red';
+            }
+            if (welcomesound && muteallsounds) {
+                muteallsounds = false;
+                document.getElementById('muteall').style.backgroundColor = 'red';
+            }
+        });
+        document.getElementById('disconnect').addEventListener('click', function() {
+            disconnectsound = !disconnectsound;
+            if (disconnectsound) {
+                document.getElementById('disconnect').style.backgroundColor = '#cdffa0';
+            }
+            else if (!disconnectsound) {
+                document.getElementById('disconnect').style.backgroundColor = 'red';
+            }
+            if (disconnectsound && muteallsounds) {
+                muteallsounds = false;
+                document.getElementById('muteall').style.backgroundColor = 'red';
+            }
+        });
+        document.getElementById('whisper').addEventListener('click', function() {
+            whispersound = !whispersound;
+            if (whispersound) {
+                document.getElementById('whisper').style.backgroundColor = '#cdffa0';
+            }
+            else if (!whispersound) {
+                document.getElementById('whisper').style.backgroundColor = 'red';
+            }
+            if (whispersound && muteallsounds) {
+                muteallsounds = false;
+                document.getElementById('muteall').style.backgroundColor = 'red';
+            }
+        });
+        document.getElementById('savesounds').addEventListener('click', function() {
+            document.getElementById('soundssettings').style.display = 'none';
+        });
 
         socket.on('connect', function(data) {
             logininput.focus();
         });
         socket.on('announce-user', function(user) {
             var audio = new Audio('/public/242501__gabrielaraujo__powerup-success.wav');
-            audio.play();
+            if (welcomesound && muteallsounds === false) {
+                audio.play();
+            }
             var item = document.createElement('li');
             item.textContent = 'Welcome, ' + user + '!';
             item.style.color = 'green';
@@ -185,7 +283,9 @@
         });
         socket.on('private-message', function(msg) {
             var audio = new Audio('/public/350862__cabled-mess__blip-c-04.wav');
-            audio.play();
+            if (whispersound && muteallsounds === false) {
+                audio.play();
+            }
             var item = document.createElement('li');
             item.textContent = msg;
             messages.appendChild(item);
@@ -193,7 +293,9 @@
         });
         socket.on('user-left', function(user) {
             var audio = new Audio('/public/133283__leszek-szary__game-over.wav');
-            audio.play();
+            if (disconnectsound && muteallsounds === false) {
+                audio.play();
+            }
             var item = document.createElement('li');
             item.textContent = user + ' has left.';
             item.style.color = 'red';

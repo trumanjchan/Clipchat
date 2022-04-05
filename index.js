@@ -7,6 +7,7 @@ const io = new Server(server);
 
 var clients = [];
 
+app.use('/favicon.ico', express.static('public/favicon.ico'));
 app.use('/public', express.static(__dirname + '/public'));
 
 app.get('/', (req, res) => {
@@ -22,7 +23,7 @@ io.on('connection', (socket) => {
         var nickavailability = clients.find(obj => {
             return obj.username === data.username.trim();
         })
-        if (nickavailability == undefined) {
+        if (nickavailability == undefined && data.username.length < 11 && data.username.trim().length != 0) {
             io.emit('new-nickname');
             var clientInfo = new Object();
             clientInfo.clientId = socket.id;
