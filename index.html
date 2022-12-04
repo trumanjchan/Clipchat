@@ -3,11 +3,12 @@
   <head>
     <title>Sock Chats</title>
     <link rel="favicon" type="image/x-icon" href="/public/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
     <style>
         @font-face {font-family: 'Minecraft'; src: url('/public/minecraftia/Minecraftia-Regular.ttf'); }
-        body { height: calc(100vh); margin: 0; display: grid; grid-template-columns: 20% 80%; overflow-wrap: anywhere; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        html, body { width: 100%; overflow: hidden; display: flex; margin: 0; overflow-wrap: anywhere; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
-        #login { position: fixed; z-index: 1; height: calc(100vh); width: calc(100vw); background-color: rgba(0, 0, 0, 0.5); }
+        #login { position: fixed; z-index: 1; height: 100%; width: 100%; background-color: rgba(0, 0, 0, 0.5); }
         #loginform { display: flex; flex-direction: column; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; right: 0; bottom: 0; margin: auto; height: fit-content; width: fit-content; border-radius: 50px; border: 1px solid black; padding: 2% 5% 4% 5%; font-size: 20px; background-color: #d9edc7; }
         .logintitle { font-size: 30px; margin-bottom: 10%; }
         .grid { width: 100%; display: grid; grid-template-columns: 50% 50%; grid-template-areas: "displayname inputfield" ". submitbutton"; }
@@ -16,30 +17,30 @@
         .enterbutton { grid-area: submitbutton; font-size: 20px; }
         .logininfo { margin-bottom: 0; }
 
-        #soundssettings { display: none; position: fixed; z-index: 1; height: calc(100vh); width: calc(100vw); background-color: rgba(0, 0, 0, 0.5); }
+        #soundssettings { display: none; position: fixed; z-index: 1; height: 100%; width: 100%; background-color: rgba(0, 0, 0, 0.5); }
         #soundscontainer { display: flex; flex-direction: column; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; right: 0; bottom: 0; margin: auto; height: fit-content; width: fit-content; border-radius: 50px; border: 1px solid black; padding: 2% 5% 4% 5%; font-size: 20px; background-color: #d9edc7; }
         #soundscontainer > button { font-size: 20px; }
         .soundstitle { font-size: 30px; margin-bottom: 10%; }
         .buttonsgrid { display: grid; grid-template-rows: auto auto auto auto; row-gap: 5px; }
-        .buttonsgrid > button { font-size: 25px; background-color: #cdffa0; }
+        .buttonsgrid > button { font-size: 25px; color: black; background-color: #cdffa0; }
         #muteall { background-color: red; }
         #savesounds { margin-top: 5%; }
 
-        .infocontainer { width: 100%; text-align: center; background-color: rgb(172, 228, 172); font-size: 20px; }
+        .infocontainer { height: var(--page-height); width: 30%; min-width: 125px; text-align: center; background-color: rgb(172, 228, 172); font-size: 20px; }
         .stickycontainer { height: calc(100vh); display: flex; flex-direction: column; position: sticky; top: 0; }
         #num_users { font-size: 25px; text-decoration: underline; background-color: rgba(245, 245, 245, 0.85); }
         #users { list-style-type: none; margin: 0; margin-block-end: auto; padding: 0; overflow: auto; }
-        #users > li:hover { cursor: pointer; background-color: rgb(129, 221, 129) !important; }
+        @media (hover: hover) { #users > li:hover { cursor: pointer; background-color: rgb(129, 221, 129) !important; } }
         #typingstatus { width: 100%; position: absolute; bottom: 0; background-color: rgba(245, 245, 245, 0.85); }
 
-        .main { display: flex; flex-direction: column; justify-content: space-between; border-left: 1px solid black; }
+        .main { height: var(--page-height); width: 100%; display: flex; flex-direction: column; justify-content: space-between; overflow-y: auto; border-left: 1px solid black; }
         .githubicon { position: fixed; top: 0; right: 0; width: 50px; margin: 0.55% 0.55% 0% 0%; }
         .soundicon { position: fixed; top: 56.5px; right: 0; width: 50px; margin: 0.55% 0.55% 0% 0%; cursor: pointer; }
         #messages { width: 100%; list-style-type: none; margin: 0; padding: 0; font-size: 20px; font-family: 'Minecraft', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         #messages > li { padding: 0.5% 1.5%; }
         #messages > li:hover { background-color: rgb(245, 245, 245); }
         #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; display: flex; flex-wrap: wrap; position: sticky; bottom: 0; }
-        #input { border: none; flex-grow: 1; border-radius: 10px; margin: 0.25rem; padding: 0% 1%; font-size: 30px; }
+        #input { width: 100%; border: none; flex-grow: 1; border-radius: 10px; margin: 0.25rem; padding: 0% 1%; font-size: 30px; }
         #input:focus { outline: none; }
         #form > button { flex-grow: 1; background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 10px; outline: none; color: #fff; }
     </style>
@@ -115,6 +116,14 @@
         var groupchat = [];
         var privatemessaging = false;
 
+        const documentRes = () => {
+            const doc = document.documentElement;
+            doc.style.setProperty('--page-height', `${window.innerHeight}px`);
+            doc.style.setProperty('--page-width', `${window.innerWidth}px`);
+        }
+        window.addEventListener('resize', documentRes);
+        documentRes();
+
         loginform.addEventListener('submit', function(e) {
             e.preventDefault();
             if (logininput.value && logininput.value.length < 11 && logininput.value.trim().length != 0) {
@@ -123,7 +132,6 @@
 
                 socket.on('new-nickname', function() {
                     document.getElementById('login').style.display = 'none';
-                    input.focus();
                 });
             }
         });
@@ -148,30 +156,27 @@
                 var item = document.createElement('li');
                 item.textContent = '[me -> ' + groupchat.join(', ') + '] ' + input.value;
                 messages.appendChild(item);
-                window.scrollTo(0, document.body.scrollHeight);
+                document.body.querySelector('.main').scrollTo(0, messages.scrollHeight);
                 input.value = '';
-                input.focus();
                 socket.emit('user-stopped-typing');
             }
         });
         document.getElementById('users').addEventListener('click', function(e) {
-            if (!groupchat.includes(e.target.innerText)) {
+            if (!groupchat.includes(e.target.innerText) && e.target.innerText != logininput.value) {
                 groupchat.push(e.target.innerText);
 
-                input.focus();
                 privatemessaging = true;
                 e.target.style.backgroundColor = 'rgb(129, 221, 129)';
                 var item = document.createElement('li');
                 item.textContent = 'Whispering: ' + groupchat.join(', ') + '.';
                 item.style.fontWeight = 'bold';
                 messages.appendChild(item);
-                window.scrollTo(0, document.body.scrollHeight);
+                document.body.querySelector('.main').scrollTo(0, messages.scrollHeight);
             }
-            else if (groupchat.includes(e.target.innerText)) {
+            else if (groupchat.includes(e.target.innerText) && e.target.innerText != logininput.value) {
                 var result = groupchat.filter(word => word != e.target.innerText);
                 groupchat = result;
 
-                input.focus();
                 if (privatemessaging === true && groupchat.length == 0) {
                     privatemessaging = false;
                     e.target.style.backgroundColor = 'transparent';
@@ -179,7 +184,7 @@
                     item.textContent = 'You are now speaking to everyone.';
                     item.style.fontWeight = 'bold';
                     messages.appendChild(item);
-                    window.scrollTo(0, document.body.scrollHeight);
+                    document.body.querySelector('.main').scrollTo(0, messages.scrollHeight);
                 }
                 else {
                     e.target.style.backgroundColor = 'transparent';
@@ -187,7 +192,7 @@
                     item.textContent = 'Removed recipient: ' + e.target.innerText + '. Whispering: ' + groupchat.join(', ') + '.';
                     item.style.fontWeight = 'bold';
                     messages.appendChild(item);
-                    window.scrollTo(0, document.body.scrollHeight);
+                    document.body.querySelector('.main').scrollTo(0, messages.scrollHeight);
                 }
             }
         });
@@ -258,9 +263,6 @@
             document.getElementById('soundssettings').style.display = 'none';
         });
 
-        socket.on('connect', function(data) {
-            logininput.focus();
-        });
         socket.on('announce-user', function(user) {
             var audio = new Audio('/public/242501__gabrielaraujo__powerup-success.wav');
             if (welcomesound && muteallsounds === false) {
@@ -270,7 +272,7 @@
             item.textContent = 'Welcome, ' + user + '!';
             item.style.color = 'green';
             messages.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
+            document.body.querySelector('.main').scrollTo(0, messages.scrollHeight);
         });
         socket.on('user-typing', function(status) {
             typingstatus.innerText = status;
@@ -279,7 +281,7 @@
             var item = document.createElement('li');
             item.textContent = msg;
             messages.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
+            document.body.querySelector('.main').scrollTo(0, messages.scrollHeight);
         });
         socket.on('private-message', function(msg) {
             var audio = new Audio('/public/350862__cabled-mess__blip-c-04.wav');
@@ -289,7 +291,7 @@
             var item = document.createElement('li');
             item.textContent = msg;
             messages.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
+            document.body.querySelector('.main').scrollTo(0, messages.scrollHeight);
         });
         socket.on('user-left', function(user) {
             var audio = new Audio('/public/133283__leszek-szary__game-over.wav');
@@ -300,7 +302,7 @@
             item.textContent = user + ' has left.';
             item.style.color = 'red';
             messages.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
+            document.body.querySelector('.main').scrollTo(0, messages.scrollHeight);
             socket.emit('user-stopped-typing');
 
             if (groupchat.includes(user) && groupchat.length > 1) {
@@ -308,7 +310,7 @@
                 item.textContent = 'One of your recipients left: ' + user + '.';
                 item.style.fontWeight = 'bold';
                 messages.appendChild(item);
-                window.scrollTo(0, document.body.scrollHeight);
+                document.body.querySelector('.main').scrollTo(0, messages.scrollHeight);
             }
             else if (groupchat.includes(user) && groupchat.length == 1) {
                 privatemessaging = false;
@@ -316,7 +318,7 @@
                 item.textContent = 'Your recipient left. You are now talking to everyone.';
                 item.style.fontWeight = 'bold';
                 messages.appendChild(item);
-                window.scrollTo(0, document.body.scrollHeight);
+                document.body.querySelector('.main').scrollTo(0, messages.scrollHeight);
             }
             var result = groupchat.filter(word => word != user);
             groupchat = result;
@@ -346,7 +348,7 @@
             var item = document.createElement('li');
             item.textContent = '* The server is offline *';
             messages.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
+            document.body.querySelector('.main').scrollTo(0, messages.scrollHeight);
         });
     </script>
   </body>
