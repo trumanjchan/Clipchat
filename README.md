@@ -37,6 +37,3 @@
   * https://dev.to/maciejtrzcinski/100vh-problem-with-ios-safari-3ge9
   * https://stackoverflow.com/questions/2989263/disable-auto-zoom-in-input-text-tag-safari-on-iphone
   * https://stackoverflow.com/questions/55867558/css-how-to-allow-the-hover-state-only-on-devices-which-support-hover
-###### Deploying to Heroku
-  * https://betterprogramming.pub/deploy-your-app-for-free-in-7-easy-steps-thanks-to-heroku-dfd0f387edd0
-  * https://stackoverflow.com/questions/15693192/heroku-node-js-error-web-process-failed-to-bind-to-port-within-60-seconds-of

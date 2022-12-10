@@ -9,13 +9,14 @@
         html, body { width: 100%; overflow: hidden; display: flex; margin: 0; overflow-wrap: anywhere; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
         #login { position: fixed; z-index: 1; height: 100%; width: 100%; background-color: rgba(0, 0, 0, 0.5); }
-        #loginform { display: flex; flex-direction: column; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; right: 0; bottom: 0; margin: auto; height: fit-content; width: fit-content; border-radius: 50px; border: 1px solid black; padding: 2% 5% 4% 5%; font-size: 20px; background-color: #d9edc7; }
-        .logintitle { font-size: 30px; margin-bottom: 10%; }
-        .grid { width: 100%; display: grid; grid-template-columns: 50% 50%; grid-template-areas: "displayname inputfield" ". submitbutton"; }
-        .displayname { grid-area: displayname; text-align: center; }
-        .inputfield { grid-area: inputfield; font-size: 20px; padding: 0% 2%; }
-        .enterbutton { grid-area: submitbutton; font-size: 20px; }
-        .logininfo { margin-bottom: 0; }
+        #loginform { display: flex; flex-direction: column; align-items: center; position: absolute; top: 0; left: 0; right: 0; bottom: 0; margin: auto; height: fit-content; width: fit-content; border-radius: 30px; border: 1px solid black; padding: 4% 5%; font-size: 20px; background-color: #d9edc7; }
+        .logintitle { font-size: 30px; padding-bottom: 4%; }
+        .flex { display: flex; flex-direction: column; }
+        .inputfield { font-size: 20px; text-align: center; color: white; font-weight: bold; text-shadow: 0px 0px 2px black; letter-spacing: 2px; caret-color: gray; }
+        input::placeholder { text-shadow: none; font-weight: normal; }
+        input:focus { outline: none; border: 4px solid darkolivegreen; }
+        .enterbutton { font-size: 20px; }
+        .logininfo { margin: 0; padding: 2% 0% 0% 0%; text-align: center; list-style-type: none; }
 
         #soundssettings { display: none; position: fixed; z-index: 1; height: 100%; width: 100%; background-color: rgba(0, 0, 0, 0.5); }
         #soundscontainer { display: flex; flex-direction: column; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; right: 0; bottom: 0; margin: auto; height: fit-content; width: fit-content; border-radius: 50px; border: 1px solid black; padding: 2% 5% 4% 5%; font-size: 20px; background-color: #d9edc7; }
@@ -26,12 +27,12 @@
         #muteall { background-color: red; }
         #savesounds { margin-top: 5%; }
 
-        .infocontainer { height: var(--page-height); width: 30%; min-width: 125px; text-align: center; background-color: rgb(172, 228, 172); font-size: 20px; }
-        .stickycontainer { height: calc(100vh); display: flex; flex-direction: column; position: sticky; top: 0; }
-        #num_users { font-size: 25px; text-decoration: underline; background-color: rgba(245, 245, 245, 0.85); }
-        #users { list-style-type: none; margin: 0; margin-block-end: auto; padding: 0; overflow: auto; }
+        .infocontainer { height: var(--page-height); width: 30%; min-width: 125px; display: flex; flex-direction: column; position: relative; text-align: center; background-color: rgb(172, 228, 172); font-size: 20px; }
+        #num_users { font-size: 25px; background-color: rgba(245, 245, 245, 0.85); border-bottom: 1px solid black; }
+        .flexcontainer { height: 100%; display: flex; flex-direction: column; justify-content: space-between; overflow-y: auto; }
+        #users { list-style-type: none; margin: 0; padding: 0; }
         @media (hover: hover) { #users > li:hover { cursor: pointer; background-color: rgb(129, 221, 129) !important; } }
-        #typingstatus { width: 100%; position: absolute; bottom: 0; background-color: rgba(245, 245, 245, 0.85); }
+        #typingstatus { width: 100%; position: sticky; bottom: 0; background-color: rgba(245, 245, 245, 0.85); }
 
         .main { height: var(--page-height); width: 100%; display: flex; flex-direction: column; justify-content: space-between; overflow-y: auto; border-left: 1px solid black; }
         .githubicon { position: fixed; top: 0; right: 0; width: 50px; margin: 0.55% 0.55% 0% 0%; }
@@ -40,25 +41,24 @@
         #messages > li { padding: 0.5% 1.5%; }
         #messages > li:hover { background-color: rgb(245, 245, 245); }
         #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; display: flex; flex-wrap: wrap; position: sticky; bottom: 0; }
-        #input { width: 100%; border: none; flex-grow: 1; border-radius: 10px; margin: 0.25rem; padding: 0% 1%; font-size: 30px; }
-        #input:focus { outline: none; }
-        #form > button { flex-grow: 1; background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 10px; outline: none; color: #fff; }
+        #input { width: 100%; border: none; border-radius: 10px; margin: 0.25rem; font-size: 20px; color: white; text-shadow: 0px 0px 2px black; caret-color: gray; }
+        #input:focus { outline: none; border: 4px solid darkolivegreen; }
+        #form > button { width: 100%; background: darkseagreen; border: none; margin: 0.25rem; border-radius: 10px; outline: none; color: #fff; font-size: 18px; }
     </style>
   </head>
 
   <body>
     <div id="login">
       <form id="loginform" action="">
-        <div class="logintitle">💻 Socket Chat</div>
-        <div class="grid">
-          <div class="displayname">Display Name:</div>
-          <input id="logininput" class="inputfield" autocomplete="off" />
+        <div class="logintitle">Sock Chats</div>
+        <div class="flex">
+          <input id="logininput" class="inputfield" placeholder="Nickname" autocomplete="off" />
           <button id="enter" class="enterbutton">Enter</button>
         </div>
         <ul class="logininfo">
-          <li>Has to be original ✨</li>
+          <li>Has to be original.</li>
           <li>Must be 10 characters or less.</li>
-          <li>Cannot be <i>nothing</i> or just whitespace.</li>
+          <li>Cannot be just whitespace.</li>
         </ul>
       </form>
     </div>
@@ -77,8 +77,8 @@
     </div>
 
     <div class="infocontainer">
-        <div class="stickycontainer">
-            <div id="num_users"></div>
+        <div id="num_users"></div>
+        <div class="flexcontainer">
             <ul id="users"></ul>
             <div id="typingstatus"></div>
         </div>
