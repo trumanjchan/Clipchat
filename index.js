@@ -6,6 +6,7 @@ const { Server } = require("socket.io");
 const io = new Server(server);
 
 var clients = [];
+var typingusers = [];
 
 app.use('/favicon.ico', express.static('public/favicon.ico'));
 app.use('/public', express.static(__dirname + '/public'));
@@ -38,11 +39,24 @@ io.on('connection', (socket) => {
             io.emit('update-num-users', count);
             io.emit('update-user-list', clients);
 
-            socket.on('user-typing', () => {
-                io.emit('user-typing', nickname + ' is typing...');
+            socket.on('user-typing', (data) => {
+                if (!typingusers.includes(data)) {
+                    typingusers.push(data);
+                }
+                io.emit('user-typing', typingusers.join(", ") + ' is typing...');
             });
-            socket.on('user-stopped-typing', () => {
-                io.emit('user-typing', '');
+            socket.on('user-stopped-typing', (data) => {
+                let index = typingusers.indexOf(data);
+                if (index !== -1) {
+                    typingusers.splice(index, 1);
+                }
+
+                if (typingusers.length > 0) {
+                    io.emit('user-typing', typingusers.join(", ") + ' is typing...');
+                }
+                else {
+                    io.emit('user-typing', '');
+                }
             });
             socket.on('chat-message', msg => {
                 io.emit('chat-message', {nickname, msg});
