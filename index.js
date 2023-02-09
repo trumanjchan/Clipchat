@@ -25,48 +25,51 @@ io.on('connection', (socket) => {
         })
         if (nickavailability == undefined && data.username.length < 11 && data.username.trim().length != 0) {
             io.emit('new-nickname');
+            var nickname = data.username;
             var clientInfo = new Object();
             clientInfo.clientId = socket.id;
-            clientInfo.username = data.username;
+            clientInfo.username = nickname;
             clients.push(clientInfo);
             console.log(clients);
-            io.emit('announce-user', data.username);
-            console.log('Welcome, ' + data.username + '!');
+            io.emit('announce-user', nickname);
+            console.log('Welcome, ' + nickname + '!');
 
             count = clients.length;
             io.emit('update-num-users', count);
             io.emit('update-user-list', clients);
 
             socket.on('user-typing', () => {
-                io.emit('user-typing', data.username + ' is typing...');
+                io.emit('user-typing', nickname + ' is typing...');
             });
             socket.on('user-stopped-typing', () => {
                 io.emit('user-typing', '');
             });
             socket.on('chat-message', msg => {
-                io.emit('chat-message', '<' + data.username + '> ' + msg);
-                console.log(data.username + ': ' + msg);
+                io.emit('chat-message', {nickname, msg});
+                console.log(nickname + ': ' + msg);
             });
             socket.on('privatemessaging', data => {
-                for (var i = 0; i < data.groupchat.length; i++) {
+                let clientgroupchat = data.groupchat;
+                let clientpm = data.pm;
+                for (var i = 0; i < clientgroupchat.length; i++) {
                     var result = clients.find(obj => {
-                        return obj.username === data.groupchat[i];
+                        return obj.username === clientgroupchat[i];
                     })
 
-                    data.groupchat[i] = 'me';
-                    io.to(result.clientId).emit('private-message', '[' + clientInfo.username + ' -> ' + data.groupchat.join(', ') + '] ' + data.pm);
-                    data.groupchat[i] = result.username;
+                    clientgroupchat[i] = 'me';
+                    io.to(result.clientId).emit('private-message', {nickname, clientgroupchat, clientpm});
+                    clientgroupchat[i] = result.username;
                 }
             });
 
             socket.on('disconnect', () => {
-                clients = clients.filter(person => person.username != data.username);
+                clients = clients.filter(person => person.username != nickname);
                 console.log(clients);
-                io.emit('user-left', data.username);
+                io.emit('user-left', nickname);
                 count = clients.length;
                 io.emit('update-num-users', count);
                 io.emit('update-user-list', clients);
-                console.log('Disconnected: ' + data.username);
+                console.log('Disconnected: ' + nickname);
             });
         }
     });

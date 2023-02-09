@@ -3,19 +3,25 @@
   <head>
     <title>Sock Chats</title>
     <link rel="favicon" type="image/x-icon" href="/public/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/public/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/public/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/public/favicon-16x16.png">
+    <link rel="manifest" href="/public/site.webmanifest">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
     <style>
-        @font-face {font-family: 'Minecraft'; src: url('/public/minecraftia/Minecraftia-Regular.ttf'); }
+        @font-face {font-family: 'Minecraft'; src: url('/public/fonts/minecraftia/Minecraftia-Regular.ttf'); }
         html, body { width: 100%; overflow: hidden; display: flex; margin: 0; overflow-wrap: anywhere; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
         #login { position: fixed; z-index: 1; height: 100%; width: 100%; background-color: rgba(0, 0, 0, 0.5); }
         #loginform { display: flex; flex-direction: column; align-items: center; position: absolute; top: 0; left: 0; right: 0; bottom: 0; margin: auto; height: fit-content; width: fit-content; border-radius: 30px; border: 1px solid black; padding: 4% 5%; font-size: 20px; background-color: #d9edc7; }
-        .logintitle { font-size: 30px; padding-bottom: 4%; }
+        .logintitle { font-size: 30px; font-weight: bold; text-shadow: 0px 0px 5px white; letter-spacing: 2px; padding-bottom: 4%; z-index: 1; }
+        .logintitleimage { position: absolute; top: 10px; width: 15%; height: auto; }
         .flex { display: flex; flex-direction: column; }
-        .inputfield { font-size: 20px; text-align: center; color: white; font-weight: bold; text-shadow: 0px 0px 2px black; letter-spacing: 2px; caret-color: gray; }
+        .inputfield { width: 80%; margin: 0 auto; font-size: 20px; text-align: center; padding: 1.5% 0%; color: #2d9fd9; font-weight: bold; letter-spacing: 2px; caret-color: gray; border: 1px solid darkolivegreen; border-radius: 10px; }
         input::placeholder { text-shadow: none; font-weight: normal; }
-        input:focus { outline: none; border: 4px solid darkolivegreen; }
-        .enterbutton { font-size: 20px; }
+        input:focus { outline: none; color: #2d9fd9; border: 1px solid #2d9fd9; }
+        input:focus::placeholder { color: transparent; }
+        .enterbutton { width: 50%; margin: 1.5% auto 0% auto; padding: 1% 10%; color: gray; font-size: 20px; border-radius: 10px; }
         .logininfo { margin: 0; padding: 2% 0% 0% 0%; text-align: center; list-style-type: none; }
 
         #soundssettings { display: none; position: fixed; z-index: 1; height: 100%; width: 100%; background-color: rgba(0, 0, 0, 0.5); }
@@ -41,8 +47,8 @@
         #messages > li { padding: 0.5% 1.5%; }
         #messages > li:hover { background-color: rgb(245, 245, 245); }
         #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; display: flex; flex-wrap: wrap; position: sticky; bottom: 0; }
-        #input { width: 100%; border: none; border-radius: 10px; margin: 0.25rem; font-size: 20px; color: white; text-shadow: 0px 0px 2px black; caret-color: gray; }
-        #input:focus { outline: none; border: 4px solid darkolivegreen; }
+        #input { width: 100%; border: 1px solid white; color: #2d9fd9; font-weight: bold; border-radius: 10px; margin: 0.25rem; font-size: 20px; caret-color: gray; padding-left: 10px; }
+        #input:focus { outline: none; border: 1px solid #2d9fd9; }
         #form > button { width: 100%; background: darkseagreen; border: none; margin: 0.25rem; border-radius: 10px; outline: none; color: #fff; font-size: 18px; }
     </style>
   </head>
@@ -51,6 +57,7 @@
     <div id="login">
       <form id="loginform" action="">
         <div class="logintitle">Sock Chats</div>
+        <img class="logintitleimage" src="/public/images/christmas-sock.png">
         <div class="flex">
           <input id="logininput" class="inputfield" placeholder="Nickname" autocomplete="off" />
           <button id="enter" class="enterbutton">Enter</button>
@@ -72,7 +79,7 @@
                 <button id="whisper">Received Whisper</button>
                 <button id="muteall">Mute All</button>
             </div>
-            <button id="savesounds">Back</button>
+            <button id="savesounds">Save</button>
         </div>
     </div>
 
@@ -86,8 +93,8 @@
 
     <div class="main">
       <ul id="messages">
-            <a href="https://github.com/trumanjchan/Socketchat" target="_blank"><img class="githubicon" src="/public/github.webp" alt="Github icon by riajulislam on flaticon.com" /></a>
-            <img id="soundicon" class="soundicon" src="/public/sound.webp" alt="Sound icon by juicy_fish on flaticon.com" />
+            <a href="https://github.com/trumanjchan/Socketchat" target="_blank"><img class="githubicon" src="/public/images/github.webp" alt="Github" /></a>
+            <img id="soundicon" class="soundicon" src="/public/images/sound.webp" alt="Toggle Sounds" />
       </ul>
       <form id="form" action="">
         <input id="input" autocomplete="off" maxlength="120" />
@@ -155,6 +162,7 @@
                 socket.emit('privatemessaging', { groupchat, pm });
                 var item = document.createElement('li');
                 item.textContent = '[me -> ' + groupchat.join(', ') + '] ' + input.value;
+                item.style.color = '#2d9fd9';
                 messages.appendChild(item);
                 document.body.querySelector('.main').scrollTo(0, messages.scrollHeight);
                 input.value = '';
@@ -170,6 +178,7 @@
                 var item = document.createElement('li');
                 item.textContent = 'Whispering: ' + groupchat.join(', ') + '.';
                 item.style.fontWeight = 'bold';
+                item.style.color = 'orange';
                 messages.appendChild(item);
                 document.body.querySelector('.main').scrollTo(0, messages.scrollHeight);
             }
@@ -183,6 +192,7 @@
                     var item = document.createElement('li');
                     item.textContent = 'You are now speaking to everyone.';
                     item.style.fontWeight = 'bold';
+                    item.style.color = 'orange';
                     messages.appendChild(item);
                     document.body.querySelector('.main').scrollTo(0, messages.scrollHeight);
                 }
@@ -191,6 +201,7 @@
                     var item = document.createElement('li');
                     item.textContent = 'Removed recipient: ' + e.target.innerText + '. Whispering: ' + groupchat.join(', ') + '.';
                     item.style.fontWeight = 'bold';
+                    item.style.color = 'orange';
                     messages.appendChild(item);
                     document.body.querySelector('.main').scrollTo(0, messages.scrollHeight);
                 }
@@ -264,7 +275,7 @@
         });
 
         socket.on('announce-user', function(user) {
-            var audio = new Audio('/public/242501__gabrielaraujo__powerup-success.wav');
+            var audio = new Audio('/public/sounds/242501__gabrielaraujo__powerup-success.wav');
             if (welcomesound && muteallsounds === false) {
                 audio.play();
             }
@@ -277,24 +288,28 @@
         socket.on('user-typing', function(status) {
             typingstatus.innerText = status;
         });
-        socket.on('chat-message', function(msg) {
+        socket.on('chat-message', (data) => {
             var item = document.createElement('li');
-            item.textContent = msg;
+            item.textContent = '<' + data.nickname + '> ' + data.msg;
+            if (data.nickname == nickname) {
+                item.style.color = '#2d9fd9';
+            }
             messages.appendChild(item);
             document.body.querySelector('.main').scrollTo(0, messages.scrollHeight);
         });
-        socket.on('private-message', function(msg) {
-            var audio = new Audio('/public/350862__cabled-mess__blip-c-04.wav');
+        socket.on('private-message', (data) => {
+            var audio = new Audio('/public/sounds/350862__cabled-mess__blip-c-04.wav');
             if (whispersound && muteallsounds === false) {
                 audio.play();
             }
             var item = document.createElement('li');
-            item.textContent = msg;
+            item.textContent = '[' + data.nickname + ' -> ' + data.clientgroupchat.join(', ') + '] ' + data.clientpm;
+            item.style.color = 'gray';
             messages.appendChild(item);
             document.body.querySelector('.main').scrollTo(0, messages.scrollHeight);
         });
         socket.on('user-left', function(user) {
-            var audio = new Audio('/public/133283__leszek-szary__game-over.wav');
+            var audio = new Audio('/public/sounds/133283__leszek-szary__game-over.wav');
             if (disconnectsound && muteallsounds === false) {
                 audio.play();
             }
@@ -309,6 +324,7 @@
                 var item = document.createElement('li');
                 item.textContent = 'One of your recipients left: ' + user + '.';
                 item.style.fontWeight = 'bold';
+                item.style.color = 'orange';
                 messages.appendChild(item);
                 document.body.querySelector('.main').scrollTo(0, messages.scrollHeight);
             }
@@ -317,6 +333,7 @@
                 var item = document.createElement('li');
                 item.textContent = 'Your recipient left. You are now talking to everyone.';
                 item.style.fontWeight = 'bold';
+                item.style.color = 'orange';
                 messages.appendChild(item);
                 document.body.querySelector('.main').scrollTo(0, messages.scrollHeight);
             }
@@ -334,9 +351,11 @@
                 item.textContent = clients[i].username;
               
                 if (nickname == clients[i].username) {
-                    item.style.color = 'white';
+                    item.style.color = '#2d9fd9';
+                    item.style.fontWeight = 'bold';
                     item.style.letterSpacing = '1.2px';
                 }
+
                 if (groupchat.includes(clients[i].username) && privatemessaging) {
                     item.style.backgroundColor = 'rgb(129, 221, 129)';
                 }
@@ -347,6 +366,7 @@
         socket.on('connect_error', err => {
             var item = document.createElement('li');
             item.textContent = '* The server is offline *';
+            item.style.color = 'red';
             messages.appendChild(item);
             document.body.querySelector('.main').scrollTo(0, messages.scrollHeight);
         });

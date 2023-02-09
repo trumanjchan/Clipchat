@@ -1,4 +1,13 @@
 # Real-time web app for chatting!
+Chat globally, or click as many names in the player list to private message multiple people at once!
+
+### Color Codes
+  * Blue - Everything relating to you, such as messages you send
+  * Black - Incoming global messages sent by other players
+  * Gray - Incoming whisper messages sent by other players
+  * Green - Player Joins
+  * Red - Player Disconnects and Server Offline
+  * Orange - Whispering statuses only you see
 
 ### Chat Features
   * Login modal where each player can name themselves uniquely
@@ -7,11 +16,10 @@
   * Sound toggling
   * Total # of online users
   * List of connected users
-  * Color of client's name is white
-  * *Can private message 1 or more players by clicking their name(s) in player list*
+  * Group private messaging
   * '{user} is typing' chat notification
   * Minecraft-style font
-  * **Responsive web app!**
+  * Responsive web app
 
 ### Run This Program Locally
 1. `npm install`
@@ -29,7 +37,13 @@
   * https://stackoverflow.com/questions/13964155/get-javascript-object-from-array-of-objects-by-value-of-property
 ###### Display static images
   * https://stackoverflow.com/questions/15309688/express-js-how-show-image
-###### Sounds used
+###### Fonts
+  * https://www.dafont.com/minecraftia.font
+###### Images
+  * https://www.flaticon.com/free-icon/christmas-sock_3764716?term=sock&related_id=3764716
+  * https://www.flaticon.com/free-icon/github_4494688?term=github&page=1&position=45&origin=search&related_id=4494688
+  * https://www.flaticon.com/free-icon/sound-editing_2626036?term=sound&related_id=2626036
+###### Sounds
   * https://freesound.org/people/GabrielAraujo/sounds/242501/
   * https://freesound.org/people/Leszek_Szary/sounds/133283/
   * https://freesound.org/people/cabled_mess/sounds/350862/
