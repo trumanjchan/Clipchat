@@ -77,6 +77,20 @@ io.on('connection', (socket) => {
             });
 
             socket.on('disconnect', () => {
+                if (typingusers.includes(nickname)) {
+                    let index = typingusers.indexOf(nickname);
+                    if (index !== -1) {
+                        typingusers.splice(index, 1);
+                    }
+
+                    if (typingusers.length > 0) {
+                        io.emit('user-typing', typingusers.join(", ") + ' is typing...');
+                    }
+                    else {
+                        io.emit('user-typing', '');
+                    }
+                }
+
                 clients = clients.filter(person => person.username != nickname);
                 console.log(clients);
                 io.emit('user-left', nickname);

@@ -1,5 +1,5 @@
 # Real-time web app for chatting!
-Chat globally, or click as many names in the player list to private message multiple people at once!
+Chat globally, or click names in the player list to private message multiple people at once!
 
 ### Color Codes
   * Blue - Everything relating to you, such as messages you send

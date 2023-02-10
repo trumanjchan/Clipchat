@@ -318,7 +318,6 @@
             item.style.color = 'red';
             messages.appendChild(item);
             document.body.querySelector('.main').scrollTo(0, messages.scrollHeight);
-            socket.emit('user-stopped-typing', nickname);
 
             if (groupchat.includes(user) && groupchat.length > 1) {
                 var item = document.createElement('li');
